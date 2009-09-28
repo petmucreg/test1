@@ -14,5 +14,5 @@
   (ANY "*" (page-not-found)))
 
 (defn -main []
-  (print "loszar"))
+  (println "loszar"))
 
