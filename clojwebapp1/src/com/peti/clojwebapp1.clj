@@ -9,13 +9,20 @@
 (defn blog-entry-form [params]
   (html
     (form-to [:post "/blog-entry-form-handler"]
-      (text-area {:rows 20 :cols 73} "area1")
+      [:p
+        (text-field {:cols 60} "blogEntrySubject")]
+      [:p
+        (text-area {:rows 20 :cols 80} "blogEntryBody")]
       [:br]
       (submit-button "Save"))))
 
 (defn blog-entry-success [params]
   (html
-    (text-area "Entry Saved")))
+    [:head
+        [:title "Entry Saved"]]
+    [:body
+        [:p "Entry Saved"]
+        [:p (text-area "areax")]]))
 
 (defn blog-entry-form-handler [params]
   (if (nil? (get params :area1))
