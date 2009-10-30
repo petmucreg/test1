@@ -1,36 +1,46 @@
-;; (run-server { :port 8800 } "/*"
-;;  (servlet petiapp))
+; (run-server { :port 8800 } "/*"
+;  (servlet petiapp))
 
 (ns com.peti.clojwebapp1
     (:gen-class)
     (use compojure)
     (use clojure.core))
 
+(def blogs (atom [{:subject "subject" :body "body"}]))
+
 (defn blog-entry-form [params]
   (html
-    (form-to [:post "/blog-entry-form-handler"]
-      [:p
-        (text-field {:cols 60} "blogEntrySubject")]
-      [:p
-        (text-area {:rows 20 :cols 80} "blogEntryBody")]
-      [:br]
-      (submit-button "Save"))))
+    [:html
+        [:body
+            (form-to [:post "/blog-entry-list"]
+              [:p
+                (text-field {:cols 60} "subject")]
+              [:p
+                (text-area {:rows 20 :cols 80} "body")]
+              [:br]
+              [:br]
+              (submit-button "Save"))]]))
 
-(defn blog-entry-success [params]
-  (html
-    [:head
-        [:title "Entry Saved"]]
-    [:body
-        [:p "Entry Saved"]
-        [:p (text-area "areax")]]))
+(defn create-subject [subject]
+    (vector :p subject))
 
-(defn blog-entry-form-handler [params]
-  (if (nil? (get params :area1))
-        (blog-entry-form params)
-        (blog-entry-success params)))
+(defn create-body [body]
+    (vector :p body))
+
+(defn create-article [aMap]
+    (html (vector :p
+                  (create-subject (:subject aMap))
+                  (create-body (:body aMap)))))
+
+(defn blog-entry-list [params]
+  (do
+    (reset! blogs (cons params @blogs))
+    [:html
+     [:body
+        (map #(create-article %) @blogs)]]))
 
 (defroutes petiapp
-  (GET "/blog-entry-form" (blog-entry-form params))
-  (POST "/blog-entry-form-handler" (blog-entry-form-handler params))
+  (ANY "/blog-entry-form" (blog-entry-form params))
+  (ANY "/blog-entry-list" (blog-entry-list params))
   (ANY "*" (page-not-found)))
 
