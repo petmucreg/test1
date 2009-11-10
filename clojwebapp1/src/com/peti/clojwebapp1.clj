@@ -20,8 +20,7 @@
 (defn blogs-controller [params]
   (do
     (println "request params: " params " blogs: " @blogs)
-    (if (and (not (nil? (:subject params)))
-              (not (nil? (:body params))))
+    (if (seq params)
             (reset! blogs (cons params @blogs)))
     (blogs-view @blogs)))
 
