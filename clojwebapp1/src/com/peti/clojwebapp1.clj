@@ -1,18 +1,35 @@
-; (run-server { :port 8800 } "/*"
-;  (servlet petiapp))
-
 (ns com.peti.clojwebapp1
     (:gen-class)
     (use compojure)
     (use clojure.core))
 
-(def blogs (atom [{:subject "subject" :body "body"}]))
+(def blogs (atom []))
 
-(defn blog-entry-form [params]
+(defn create-article [aMap]
+    [:div {:style "background-color:#A9B6B9;"}
+     [:h3 (:subject aMap)]
+     [:p (:body aMap)]])
+
+(defn blogs-view [blogs]
+  (html
+    [:html
+     [:body
+      [:a {:href "/newblog"} "New Blog"]
+      (map #(create-article %) blogs)]]))
+
+(defn blogs-controller [params]
+  (do
+    (println "request params: " params " blogs: " @blogs)
+    (if (and (not (nil? (:subject params)))
+              (not (nil? (:body params))))
+            (reset! blogs (cons params @blogs)))
+    (blogs-view @blogs)))
+
+(defn newblog-view [params]
   (html
     [:html
         [:body
-            (form-to [:post "/blog-entry-list"]
+            (form-to [:post "/blogs"]
               [:p
                 (text-field {:cols 60} "subject")]
               [:p
@@ -21,26 +38,18 @@
               [:br]
               (submit-button "Save"))]]))
 
-(defn create-subject [subject]
-    (vector :p subject))
+(defn newblog-controller [params]
+  (newblog-view params))
 
-(defn create-body [body]
-    (vector :p body))
-
-(defn create-article [aMap]
-    (html (vector :p
-                  (create-subject (:subject aMap))
-                  (create-body (:body aMap)))))
-
-(defn blog-entry-list [params]
-  (do
-    (reset! blogs (cons params @blogs))
-    [:html
-     [:body
-        (map #(create-article %) @blogs)]]))
+(defn start-page []
+  (blogs-controller {}))
 
 (defroutes petiapp
-  (ANY "/blog-entry-form" (blog-entry-form params))
-  (ANY "/blog-entry-list" (blog-entry-list params))
-  (ANY "*" (page-not-found)))
+  (ANY "/newblog" (newblog-controller params))
+  (ANY "/blogs" (blogs-controller params))
+  (ANY "*" (start-page)))
+
+(defn -main [args]
+ (run-server { :port 8800 } "/*"
+  (servlet petiapp)))
 
