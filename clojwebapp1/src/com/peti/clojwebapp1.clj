@@ -1,6 +1,6 @@
 (ns com.peti.clojwebapp1
     (:gen-class)
-    (use compojure)
+    (:require compojure)
     (use clojure.core))
 
 (def blogs (atom []))
@@ -11,7 +11,7 @@
      [:p (:body aMap)]])
 
 (defn blogs-view [blogs]
-  (html
+  (compojure/html
     [:html
      [:body
       [:a {:href "/newblog"} "New Blog"]
@@ -25,17 +25,17 @@
     (blogs-view @blogs)))
 
 (defn newblog-view [params]
-  (html
+  (compojure/html
     [:html
         [:body
-            (form-to [:post "/blogs"]
+            (compojure/form-to [:post "/blogs"]
               [:p
-                (text-field {:cols 60} "subject")]
+                (compojure/text-field {:cols 60} "subject")]
               [:p
-                (text-area {:rows 20 :cols 80} "body")]
+                (compojure/text-area {:rows 20 :cols 80} "body")]
               [:br]
               [:br]
-              (submit-button "Save"))]]))
+              (compojure/submit-button "Save"))]]))
 
 (defn newblog-controller [params]
   (newblog-view params))
@@ -43,12 +43,12 @@
 (defn start-page []
   (blogs-controller {}))
 
-(defroutes petiapp
-  (ANY "/newblog" (newblog-controller params))
-  (ANY "/blogs" (blogs-controller params))
-  (ANY "*" (start-page)))
+(compojure/defroutes petiapp
+  (compojure/ANY "/newblog" (newblog-controller params))
+  (compojure/ANY "/blogs" (blogs-controller params))
+  (compojure/ANY "*" (start-page)))
 
 (defn -main [args]
- (run-server { :port 8800 } "/*"
-  (servlet petiapp)))
+ (compojure/run-server { :port 8800 } "/*"
+  (compojure/servlet petiapp)))
 
