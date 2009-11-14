@@ -1,9 +1,8 @@
 (ns com.peti.clojwebapp1
     (:gen-class)
     (:require compojure)
+    (:require com.peti.dataaccess)
     (use clojure.core))
-
-(def blogs (atom []))
 
 (defn create-article [aMap]
     [:div {:style "background-color:#A9B6B9;"}
@@ -18,11 +17,9 @@
       (map #(create-article %) blogs)]]))
 
 (defn blogs-controller [params]
-  (do
-    (println "request params: " params " blogs: " @blogs)
     (if (seq params)
-            (reset! blogs (cons params @blogs)))
-    (blogs-view @blogs)))
+            (com.peti.dataaccess/save-blog params))
+    (blogs-view (com.peti.dataaccess/read-blogs)))
 
 (defn newblog-view [params]
   (compojure/html
@@ -48,7 +45,7 @@
   (compojure/ANY "/blogs" (blogs-controller params))
   (compojure/ANY "*" (start-page)))
 
-(defn -main [args]
+(defn -main []
  (compojure/run-server { :port 8800 } "/*"
   (compojure/servlet petiapp)))
 
